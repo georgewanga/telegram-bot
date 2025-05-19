@@ -33,6 +33,7 @@ async def handle_new_message(event):
 
             if trader.connect():
                 trader.place_cfd_order(
+                    instrument_type=msg_signals["instrument_type"],
                     instrument_id=msg_signals["instrument_id"],
                     stop_price=msg_signals["stop_price"],
                     stop_lose_value=msg_signals["stop_lose_value"],
