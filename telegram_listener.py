@@ -1,34 +1,36 @@
 import asyncio
+import os
 from telethon import TelegramClient, events
-from iqoption_trade import IQOptionTrader  # Assuming iqoption_trade.py is in the same folder
+from iqoption_trade import IQOptionTrader
 from signal_parser import parse_signal, validate_signal_data
 
-# Telegram API credentials
+# Telegram Bot Token
+BOT_TOKEN = "7668747945:AAFDSkqfOIODmd_28GdKXOSkhQmVbcdKf6s"
+
+# API credentials (required even for bots)
 API_ID = 21985712
 API_HASH = "679a48874074f8d8d059b81d69e3bcf7"
-PHONE_NUMBER = "+254729646982"
 
-# IQ Option login credentials (consider using env vars or a config file)
+# IQ Option login credentials (move these to env vars ideally)
 IQ_EMAIL = "george.wanga@gmail.com"
 IQ_PASSWORD = "27959256"
 
-# Create Telegram client
-client = TelegramClient("session_name", API_ID, API_HASH)
+# Create Telegram bot client
+client = TelegramClient("bot_session", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
 
 
-@client.on(events.NewMessage(chats=None))  # Listens to all new messages
+@client.on(events.NewMessage)
 async def handle_new_message(event):
     try:
         message_text = event.raw_text or "No message content"
         chat = await event.get_chat()
-        chat_name = chat.title if chat and chat.title else "Unknown Channel"
+        chat_name = getattr(chat, "title", "Private Chat or Unknown")
 
         print(f"Channel: {chat_name}\nMessage: {message_text}\n")
         message_text = f'"""{message_text}"""'
-        msg_signals = parse_signal(message_text)        
+        msg_signals = parse_signal(message_text)
 
-        # === Example trade trigger (you can customize based on message content) ===
-        if validate_signal_data(msg_signals):  # Very basic example
+        if validate_signal_data(msg_signals):
             trader = IQOptionTrader(IQ_EMAIL, IQ_PASSWORD)
 
             if trader.connect():
@@ -45,8 +47,7 @@ async def handle_new_message(event):
 
 
 async def main():
-    await client.start(PHONE_NUMBER)
-    print("Listening for new messages...")
+    print("Bot is listening for new messages...")
     await client.run_until_disconnected()
 
 
