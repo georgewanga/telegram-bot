@@ -1,12 +1,16 @@
 import asyncio
 import logging
 import re
+import warnings
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
 import pytz
 from iqoptionapi.stable_api import IQ_Option
 from telethon import TelegramClient, events
+
+# Suppress Telethon async sessions warning
+warnings.filterwarnings("ignore", message="Using async sessions support is an experimental feature")
 
 # Configure logging
 logging.basicConfig(
